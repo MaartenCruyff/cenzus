@@ -1,0 +1,22 @@
+#' New Zealand population registers.
+#'
+#' A contingency table containing self-reported classifications
+#' of ethnicity (Maori vs non-Maori) of in four incomplete population
+#' registers.
+#'
+#' @format Data frame with 1296 cases and 9 variables:
+#' \describe{
+#'   \item{A}{census (0 = not observed, 1  = observed)}
+#'   \item{B}{dia (0 = not observed, 1  = observed)}
+#'   \item{C}{moh (0 = not observed, 1  = observed)}
+#'   \item{B}{moe (0 = not observed, 1  = observed)}
+#'   \item{a}{self-reported ethnicity in census (0 = non-Moari, 1  = Maori, NA = not reported)}
+#'   \item{b}{self-reported ethnicity in dia (0 = non-Moari, 1  = Maori, NA = not reported)}
+#'   \item{c}{self-reported ethnicity in moh (0 = non-Moari, 1  = Maori, NA = not reported)}
+#'   \item{d}{self-reported ethnicity in moe (0 = non-Moari, 1  = Maori, NA = not reported)}
+#'   \item{Freq}{The observed frequency}
+#' }
+#' @details Cells for which A, B, C, and D is 0 are not observed in any of the four registers,
+#' and constitute structural zeros.
+#' @source Stats New Zealand.
+"NewZealand"

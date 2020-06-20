@@ -1,0 +1,25 @@
+Package: cenzus
+Type: Package
+Title: EM algorithm for Multiple Systems Estimation
+Version: 0.1.0
+Author: Maarten Cruyff
+Maintainer: Maarten Cruyff <m.cruyff@uu.nl>
+Description: EM for fitting log-linear (latent class) models 
+    to contingency tables with incomplete population 
+    registers and covariates with missing labels. A 
+    semi-parametric bootstrap method is implemented to
+    obtain confidence intervals for the population size 
+    estimates. 
+License: MIT + file LICENSE
+Encoding: UTF-8
+Depends:
+   R (>= 4.0)
+LazyData: true
+Imports:
+    Matrix (>= 1.2-18),
+    doParallel (>= 1.0.15),
+    parallel (>= 4.0.0),
+    foreach (>= 1.5.0),
+    iterators (>= 1.0.12)
+RoxygenNote: 7.1.0
+
