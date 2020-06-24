@@ -1,30 +1,34 @@
 #' Multiple Systems Estimation
 #'
-#' @description \code{mse} fits a loglinear model with the EM algorithm.
-#' @param model formula of the model to be fitted. A register should be denoted by
-#' a single upper case letter, a covariate by single lower case letters. Latent variables
+#' @description \code{mse} fits a loglinear model with the EM algorithm with imputation
+#' of missing values, and the potential inclusion of latent class variables. If population
+#' registers are included in the model, the function classifies the cells that are not
+#' observed as structural zeros and performs multiple sytems estimation.
+#' @param model formula of the model to be fitted. Population registers should be denoted by
+#' a single upper case letter, and covariates by single lower case letter. Latent variables
 #' are denoted by single upper case letters, as specified in \code{lat}.
 #' @param dframe a data frame with the data, either as individual
-#' records or as a contingency table. The registers should be coded 0 if not observed,
-#' and 1 if observed. It is also possible to use a subset of the variables in the
-#' data frame.
+#' records or as a contingency table with the variable \code{Freq} denoting the observed
+#' frequencies of the response patterns. Population registers should be coded 0 if not
+#' observed, and 1 if observed.
 #' @param lat a character (vector) with the letter(s) denoting the latent variable(s) in
-#' \code{model}. Defaults to \code{NULL} for the absence of latent variables.
-#' @param nclass a numeric vector with the number of classes of the latent variables
-#' specified in \code{lat}, if any.
+#' \code{model}. The default \code{NULL} is used to denote absence of latent variables.
+#' @param nclass a numeric vector with the number of classes of the latent variable(s)
+#' specified in \code{lat}, if present.
 #' @param crit the convergence criterion of the EM algorithm computed as the difference
-#' of the complete data log-likelihood at ultimate and penultimate iteration. Defaults to 1e-7.
+#' of the incomplete data log-likelihood between the current and previous iteration.
+#' Defaults to 1e-7.
 #' @param maxiter the maximum number of EM iterations. Defaults to 5000.
 #' @param seed random seed determining the starting values of the EM algorithm. Defaults to 1.
-#' Changing the seed may be helpful when the Hessian is non-invertible. See 'Details'.
-#' @return A list with fitted objects (the first four are also printed to the screen, the others are
-#' required by the \code{\link{boot_mse}} function).
-#' \item{loglike}{the maximized incomplete data log-likelihood.}
-#' \item{coefs}{a matrix with the log-linear parameter estimates, SE's, and t- and p-values.}
-#' \item{probs}{a matrix with the fitted population probabilities of the variable levels.}
-#' \item{fitted}{a matrix with variables and fitted frequencies.}
-#' \item{hist}{iteration history.}
+#' @return list with fitted objects, and input for the function \code{\link{boot_mse}}.
 #' \item{model}{the model formula.}
+#' \item{loglike}{the maximized incomplete data log-likelihood.}
+#' \item{pse}{matrix with the observed sample size, the population size estimate, and estimated
+#' frequency of the cells with structural zeros.}
+#' \item{coefs}{matrix with the log-linear parameter estimates, SE's, and t- and p-values.}
+#' \item{probs}{matrix with the fitted population probabilities of the variable levels.}
+#' \item{fitted}{matrix with variables and fitted frequencies.}
+#' \item{hist}{iteration history.}
 #' \item{nclass}{a with the number(s) of classes of the latent variable(s), if any.}
 #' \item{dobsmis}{contingency table excluding structural zeros and including missings.}
 #' \item{dimp}{a matrix used for imputing the missings.}
@@ -174,7 +178,7 @@ mse <- function(model, dframe, lat = NULL, nclass = 1, crit = 1e-7,
 
   if (prod(dim(dimp)) <= 1e5) {
 
-    fxc    <- n * softmax(rep(0, nrow(D) - 1))                      # Uniform starting frequencies
+    fxc    <- n * softmax(rnorm(nrow(dxc) - 1))                      # Uniform starting frequencies
 
     b      <- loglin(b0 = rep(0, ncol(D) - 1), f = fxc, D = D)       # M-step: parameter estimation
 
@@ -391,6 +395,8 @@ mse <- function(model, dframe, lat = NULL, nclass = 1, crit = 1e-7,
 
 
 
+  print(model)
+  cat("\n")
   print(matrix(as.vector(LL), 1, 1, dimnames = list(NULL, "loglikelihood")), digits = 12)
   cat("\n")
   print(matrix(c(n, Nhat, round(Nhat - n)), 1, 3, dimnames = list(NULL, c("nobs", "Nhat", "n0"))))
@@ -402,7 +408,9 @@ mse <- function(model, dframe, lat = NULL, nclass = 1, crit = 1e-7,
 
 
   invisible(list(
+    model   = model,
     loglike = LL,
+    pse     = matrix(c(n, Nhat, round(Nhat - n)), 1, 3, dimnames = list(NULL, c("nobs", "Nhat", "n0"))),
     coefs   = coefs,
     probs   = probs,
     fitted  = fitted,
